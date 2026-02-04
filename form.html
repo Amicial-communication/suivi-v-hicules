@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire Véhicule</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 400px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .car-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status {
+            color: #666;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="car-icon">🚗</div>
+        <h2>Suivi Entretien Véhicule</h2>
+        <div class="spinner"></div>
+        <p class="status">Récupération de votre position GPS...</p>
+    </div>
+    
+    <script>
+        // Récupérer les paramètres de l'URL actuelle (infos du véhicule)
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // REMPLACEZ par l'URL de VOTRE formulaire Google
+        const formBaseURL = "https://docs.google.com/forms/d/e/1FAIpQLSf_FLWFkBDvdyYlt5UksB4l0AEaicl9kep8h3QtjWU3G4HVAA/viewform?usp=dialog";
+        
+        // IDs des champs (ne changez pas ces valeurs)
+        const marqueID = "entry.1224908886";
+        const modeleID = "entry.136488957";
+        const plaqueID = "entry.2023302463";
+        const geoID = "entry.880601361";
+        
+        // Fonction pour rediriger vers le formulaire
+        function redirectToForm(geoData = "") {
+            // Construire l'URL complète
+            let finalURL = formBaseURL + "?usp=pp_url";
+            
+            // Ajouter les infos du véhicule (depuis le QR code)
+            const marque = urlParams.get('marque') || '';
+            const modele = urlParams.get('modele') || '';
+            const plaque = urlParams.get('plaque') || '';
+            
+            if (marque) finalURL += `&${marqueID}=${encodeURIComponent(marque)}`;
+            if (modele) finalURL += `&${modeleID}=${encodeURIComponent(modele)}`;
+            if (plaque) finalURL += `&${plaqueID}=${encodeURIComponent(plaque)}`;
+            
+            // Ajouter la géolocalisation
+            if (geoData) {
+                finalURL += `&${geoID}=${encodeURIComponent(geoData)}`;
+            }
+            
+            // Redirection vers Google Forms
+            window.location.href = finalURL;
+        }
+        
+        // Récupérer la géolocalisation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lon = position.coords.longitude.toFixed(6);
+                    const accuracy = position.coords.accuracy.toFixed(0);
+                    
+                    // Format : "43.123456, 1.234567 (précision: 10m)"
+                    const geoData = `${lat}, ${lon} (${accuracy}m)`;
+                    
+                    redirectToForm(geoData);
+                },
+                function(error) {
+                    console.error("Erreur géolocalisation:", error.message);
+                    // Continuer sans géolocalisation
+                    redirectToForm("Position non disponible");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            redirectToForm("Géolocalisation non supportée");
+        }
+    </script>
+</body>
+</html>
