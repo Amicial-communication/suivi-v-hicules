@@ -12,7 +12,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         .container {
             text-align: center;
@@ -32,7 +32,7 @@
         }
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #0078d4;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -59,57 +59,63 @@
     </div>
     
     <script>
-        // Récupérer les paramètres de l'URL actuelle (infos du véhicule)
         const urlParams = new URLSearchParams(window.location.search);
         
-        // URL de base de votre formulaire Microsoft Forms
         const formBaseURL = "https://forms.office.com/Pages/ResponsePage.aspx?id=RDQOv2mwt063A5QHEWv3DDoE5SCcEXpFgCbpAazgK-pURjQ5VDQ0V09RTkNJN0xFWDNSU0tONUM1UiQlQCN0PWcu";
         
-        // IDs des champs Microsoft Forms
-        const marqueID = "rba6e8b4972eb45a0ab92127c776d3a1d";
-        const modeleID = "r861327d4ab1245668b07e0e879e84e23";
-        const plaqueID = "r2356d94277aa4c34b2e1ed3c2299b7e8";
-        const geoID = "rab7748b8af4c4539a1abe6ac3c9a0693";
+        // IDs pour la branche PRISE
+        const priseMarqueID = "rba6e8b4972eb45a0ab92127c776d3a1d";
+        const priseModeleID = "r861327d4ab1245668b07e0e879e84e23";
+        const prisePlaqueID = "r2356d94277aa4c34b2e1ed3c2299b7e8";
+        const priseGeoID = "rab7748b8af4c4539a1abe6ac3c9a0693";
         
-        // Fonction pour rediriger vers le formulaire
+        // IDs pour la branche RETOUR
+        const retourMarqueID = "r3465abbd71d84a3eae5a11966da2ffd7";
+        const retourModeleID = "r671f88129b324a2fb0ef8b1a5281a7dd";
+        const retourPlaqueID = "rf0661cf74a434faba1e935fd6e62d328";
+        const retourGeoID = "rc3bb29b532854c6d81277d1e8252e5e2";
+        
         function redirectToForm(geoData = "") {
-            // Construire l'URL complète
             let finalURL = formBaseURL;
             
-            // Ajouter les infos du véhicule (depuis le QR code)
             const marque = urlParams.get('marque') || '';
             const modele = urlParams.get('modele') || '';
             const plaque = urlParams.get('plaque') || '';
             
-            if (marque) finalURL += `&${marqueID}=${encodeURIComponent(marque)}`;
-            if (modele) finalURL += `&${modeleID}=${encodeURIComponent(modele)}`;
-            if (plaque) finalURL += `&${plaqueID}=${encodeURIComponent(plaque)}`;
-            
-            // Ajouter la géolocalisation
-            if (geoData) {
-                finalURL += `&${geoID}=${encodeURIComponent(geoData)}`;
+            // Pré-remplir TOUS les champs (prise ET retour)
+            if (marque) {
+                finalURL += `&${priseMarqueID}=${encodeURIComponent(marque)}`;
+                finalURL += `&${retourMarqueID}=${encodeURIComponent(marque)}`;
+            }
+            if (modele) {
+                finalURL += `&${priseModeleID}=${encodeURIComponent(modele)}`;
+                finalURL += `&${retourModeleID}=${encodeURIComponent(modele)}`;
+            }
+            if (plaque) {
+                finalURL += `&${prisePlaqueID}=${encodeURIComponent(plaque)}`;
+                finalURL += `&${retourPlaqueID}=${encodeURIComponent(plaque)}`;
             }
             
-            // Redirection vers Microsoft Forms
+            // Géolocalisation pour les deux branches
+            if (geoData) {
+                finalURL += `&${priseGeoID}=${encodeURIComponent(geoData)}`;
+                finalURL += `&${retourGeoID}=${encodeURIComponent(geoData)}`;
+            }
+            
             window.location.href = finalURL;
         }
         
-        // Récupérer la géolocalisation
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     const lat = position.coords.latitude.toFixed(6);
                     const lon = position.coords.longitude.toFixed(6);
                     const accuracy = position.coords.accuracy.toFixed(0);
-                    
-                    // Format : "43.123456, 1.234567 (précision: 10m)"
                     const geoData = `${lat}, ${lon} (${accuracy}m)`;
-                    
                     redirectToForm(geoData);
                 },
                 function(error) {
                     console.error("Erreur géolocalisation:", error.message);
-                    // Continuer sans géolocalisation
                     redirectToForm("Position non disponible");
                 },
                 {
