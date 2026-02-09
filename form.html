@@ -3,123 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire Véhicule</title>
+    <title>Générateur CSV QR Codes - Amicial</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        * {
             margin: 0;
-            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            padding: 0;
+            box-sizing: border-box;
         }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
         .container {
-            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
             background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            max-width: 400px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
-        h2 {
-            color: #333;
+        
+        .header {
+            background: linear-gradient(135deg, #5A7B9A 0%, #4A6B8A 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
             margin-bottom: 10px;
         }
-        .car-icon {
-            font-size: 60px;
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #5A7B9A;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .input-group {
             margin-bottom: 20px;
         }
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0078d4;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
         }
-        .status {
+        
+        textarea:focus {
+            outline: none;
+            border-color: #5A7B9A;
+        }
+        
+        .example {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
             color: #666;
-            margin-top: 15px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #FF8A4C;
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            background: #E67840;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 138, 76, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .preview {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .preview h3 {
+            color: #5A7B9A;
+            margin-bottom: 15px;
+        }
+        
+        .csv-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre;
+            margin: 20px 0;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .alert-success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+        
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 30px;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #856404;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+
+        .indesign-tips {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #388e3c;
+            margin-top: 20px;
+        }
+
+        .indesign-tips h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .indesign-tips ul {
+            margin-left: 20px;
+            color: #2e7d32;
+        }
+
+        .indesign-tips li {
+            margin: 8px 0;
+        }
+        
+        .footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            color: #666;
             font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="car-icon">🚗</div>
-        <h2>Carnet de Bord Véhicule</h2>
-        <div class="spinner"></div>
-        <p class="status">Récupération de votre position GPS...</p>
+        <div class="header">
+            <h1>📊 Générateur CSV pour InDesign</h1>
+            <p>Amicial - Fusion de données avec QR Codes</p>
+        </div>
+        
+        <div class="content">
+            <div class="instructions">
+                <h3>📋 Comment utiliser ce générateur ?</h3>
+                <ol>
+                    <li>Ouvrez votre fichier Excel avec la liste des véhicules</li>
+                    <li>Sélectionnez et copiez les 3 colonnes : <strong>Marque, Modèle, Plaque</strong></li>
+                    <li>Collez dans le champ ci-dessous</li>
+                    <li>Cliquez sur "Générer le CSV"</li>
+                    <li>Téléchargez le fichier CSV</li>
+                    <li>Importez-le dans InDesign (Fenêtre → Utilitaires → Fusion de données)</li>
+                </ol>
+            </div>
+            
+            <div class="section">
+                <div class="input-group">
+                    <label for="vehicleData">
+                        📊 Collez vos données (Format : Marque [TAB] Modèle [TAB] Plaque)
+                    </label>
+                    <textarea 
+                        id="vehicleData" 
+                        placeholder="Exemple :
+RENAULT	CLIO IV	GL-341-SH
+RENAULT	CLIO	GL-366-SH
+TOYOTA	AYGO	DW-555-XM
+PEUGEOT	208	FN-445-DK"></textarea>
+                    
+                    <div class="example">
+                        💡 <strong>Astuce :</strong> Copiez directement depuis Excel. Les tabulations, virgules ou points-virgules sont détectés automatiquement.
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" id="generateBtn" onclick="genererCSV()">
+                        ✨ Générer le CSV
+                    </button>
+                    <button class="btn-secondary" onclick="effacer()">
+                        🗑️ Effacer
+                    </button>
+                </div>
+            </div>
+            
+            <div id="messages"></div>
+            
+            <div class="preview" id="preview">
+                <h3>✅ Aperçu du CSV généré</h3>
+                <div id="stats"></div>
+                <div class="csv-preview" id="csvPreview"></div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="telechargerCSV()">
+                        📥 Télécharger le CSV
+                    </button>
+                </div>
+
+                <div class="indesign-tips">
+                    <h3>📐 Utilisation dans InDesign</h3>
+                    <ul>
+                        <li><strong>Importer :</strong> Fenêtre → Utilitaires → Fusion de données → Sélectionner la source de données</li>
+                        <li><strong>QR Code :</strong> Objet → Générer le code QR → Sélectionnez le champ <code>QRCODE&lt;</code></li>
+                        <li><strong>Texte :</strong> Insérez les champs <code>&lt;&lt;MARQUE&gt;&gt;</code>, <code>&lt;&lt;MODELE&gt;&gt;</code>, <code>&lt;&lt;PLAQUE D'IMMATRICULATION&gt;&gt;</code></li>
+                        <li><strong>Créer :</strong> Fusion de données → Créer un document fusionné → Tous les enregistrements</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Générateur CSV pour InDesign - Amicial © 2026</p>
+            <p>Les QR codes pointent vers : https://amicial-communication.github.io/suivi-v-hicules/form.html</p>
+        </div>
     </div>
     
     <script>
-        // Récupérer les paramètres de l'URL actuelle (infos du véhicule)
-        const urlParams = new URLSearchParams(window.location.search);
+        let csvData = '';
+        let vehiculesData = [];
+        const baseURL = 'https://amicial-communication.github.io/suivi-v-hicules/form.html';
         
-        // URL de base de votre formulaire Microsoft Forms
-        const formBaseURL = "https://forms.office.com/Pages/ResponsePage.aspx?id=RDQOv2mwt063A5QHEWv3DDoE5SCcEXpFgCbpAazgK-pURjQ5VDQ0V09RTkNJN0xFWDNSU0tONUM1UiQlQCN0PWcu";
-        
-        // IDs des champs Microsoft Forms
-        const marqueID = "rba6e8b4972eb45a0ab92127c776d3a1d";
-        const modeleID = "r861327d4ab1245668b07e0e879e84e23";
-        const plaqueID = "r2356d94277aa4c34b2e1ed3c2299b7e8";
-        const geoID = "rab7748b8af4c4539a1abe6ac3c9a0693";
-        
-        // Fonction pour rediriger vers le formulaire
-        function redirectToForm(geoData = "") {
-            // Construire l'URL complète
-            let finalURL = formBaseURL;
-            
-            // Ajouter les infos du véhicule (depuis le QR code)
-            const marque = urlParams.get('marque') || '';
-            const modele = urlParams.get('modele') || '';
-            const plaque = urlParams.get('plaque') || '';
-            
-            if (marque) finalURL += `&${marqueID}=${encodeURIComponent(marque)}`;
-            if (modele) finalURL += `&${modeleID}=${encodeURIComponent(modele)}`;
-            if (plaque) finalURL += `&${plaqueID}=${encodeURIComponent(plaque)}`;
-            
-            // Ajouter la géolocalisation
-            if (geoData) {
-                finalURL += `&${geoID}=${encodeURIComponent(geoData)}`;
-            }
-            
-            // Redirection vers Microsoft Forms
-            window.location.href = finalURL;
+        function afficherMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            const alertClass = type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info';
+            messagesDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
         }
         
-        // Récupérer la géolocalisation
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const lat = position.coords.latitude.toFixed(6);
-                    const lon = position.coords.longitude.toFixed(6);
-                    const accuracy = position.coords.accuracy.toFixed(0);
-                    
-                    // Format : "43.123456, 1.234567 (précision: 10m)"
-                    const geoData = `${lat}, ${lon} (${accuracy}m)`;
-                    
-                    redirectToForm(geoData);
-                },
-                function(error) {
-                    console.error("Erreur géolocalisation:", error.message);
-                    // Continuer sans géolocalisation
-                    redirectToForm("Position non disponible");
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+        function effacer() {
+            document.getElementById('vehicleData').value = '';
+            document.getElementById('preview').style.display = 'none';
+            document.getElementById('messages').innerHTML = '';
+            csvData = '';
+            vehiculesData = [];
+        }
+        
+        function parseVehicules(texte) {
+            const lignes = texte.trim().split('\n');
+            const vehicules = [];
+            
+            for (let ligne of lignes) {
+                if (!ligne.trim()) continue;
+                
+                let parts;
+                if (ligne.includes('\t')) {
+                    parts = ligne.split('\t');
+                } else if (ligne.includes(';')) {
+                    parts = ligne.split(';');
+                } else if (ligne.includes(',')) {
+                    parts = ligne.split(',');
+                } else {
+                    continue;
                 }
-            );
-        } else {
-            redirectToForm("Géolocalisation non supportée");
+                
+                parts = parts.map(p => p.trim()).filter(p => p);
+                
+                if (parts.length >= 3) {
+                    vehicules.push({
+                        marque: parts[0],
+                        modele: parts[1],
+                        plaque: parts[2]
+                    });
+                }
+            }
+            
+            return vehicules;
+        }
+        
+        function genererCSV() {
+            const texte = document.getElementById('vehicleData').value;
+            
+            if (!texte.trim()) {
+                afficherMessage('⚠️ Veuillez coller des données avant de générer le CSV.', 'error');
+                return;
+            }
+            
+            vehiculesData = parseVehicules(texte);
+            
+            if (vehiculesData.length === 0) {
+                afficherMessage('❌ Aucun véhicule valide détecté. Vérifiez le format de vos données.', 'error');
+                return;
+            }
+            
+            // Générer le CSV avec le bon format pour InDesign
+            let csv = 'MARQUE;MODELE;PLAQUE D\'IMMATRICULATION;QRCODE<\n';
+            
+            for (let v of vehiculesData) {
+                const url = `${baseURL}?marque=${encodeURIComponent(v.marque)}&modele=${encodeURIComponent(v.modele)}&plaque=${encodeURIComponent(v.plaque)}`;
+                csv += `${v.marque};${v.modele};${v.plaque};${url}\n`;
+            }
+            
+            csvData = csv;
+            
+            // Afficher l'aperçu (limité aux 10 premières lignes + ...)
+            const lignesApercu = csvData.split('\n').slice(0, 11);
+            let apercu = lignesApercu.join('\n');
+            if (vehiculesData.length > 10) {
+                apercu += `\n... et ${vehiculesData.length - 10} autres lignes`;
+            }
+            
+            document.getElementById('csvPreview').textContent = apercu;
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="alert alert-success">
+                    ✅ <strong>${vehiculesData.length} véhicules</strong> prêts pour InDesign !
+                </div>
+            `;
+            
+            document.getElementById('preview').style.display = 'block';
+            afficherMessage(`✨ CSV généré avec succès ! ${vehiculesData.length} véhicules prêts pour la fusion de données InDesign.`, 'success');
+        }
+        
+        function telechargerCSV() {
+            if (!csvData) {
+                afficherMessage('⚠️ Veuillez d\'abord générer le CSV.', 'error');
+                return;
+            }
+            
+            // Créer un blob avec BOM UTF-8 pour Excel
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + csvData], { type: 'text/csv;charset=utf-8;' });
+            
+            // Créer un lien de téléchargement
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const date = new Date().toISOString().split('T')[0];
+            link.setAttribute('href', url);
+            link.setAttribute('download', `vehicules_qr_codes_${date}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            afficherMessage(`📥 CSV téléchargé : vehicules_qr_codes_${date}.csv`, 'success');
         }
     </script>
 </body>
