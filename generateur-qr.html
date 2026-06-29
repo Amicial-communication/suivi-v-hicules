@@ -453,9 +453,9 @@ PEUGEOT	208	FN-445-DK	Lyon"></textarea>
                 return;
             }
             
-            // Créer un blob avec BOM UTF-8 pour Excel
-            const BOM = '\uFEFF';
-            const blob = new Blob([BOM + csvData], { type: 'text/csv;charset=utf-8;' });
+            // Pas de BOM UTF-8 : InDesign Windows rejette parfois les fichiers avec BOM
+            // ("ne contient aucun enregistrement ou n'est pas un format pris en charge")
+            const blob = new Blob([csvData], { type: 'text/plain;charset=utf-8;' });
             
             // Créer un lien de téléchargement
             const link = document.createElement('a');
