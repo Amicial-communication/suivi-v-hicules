@@ -253,7 +253,7 @@
                 <h3>📋 Comment utiliser ce générateur ?</h3>
                 <ol>
                     <li>Ouvrez votre fichier Excel avec la liste des véhicules</li>
-                    <li>Sélectionnez et copiez les 3 colonnes : <strong>Marque, Modèle, Plaque</strong></li>
+                    <li>Sélectionnez et copiez les 4 colonnes : <strong>Marque, Modèle, Plaque, Agence</strong></li>
                     <li>Collez dans le champ ci-dessous</li>
                     <li>Cliquez sur "Générer le CSV"</li>
                     <li>Téléchargez le fichier CSV</li>
@@ -264,18 +264,19 @@
             <div class="section">
                 <div class="input-group">
                     <label for="vehicleData">
-                        📊 Collez vos données (Format : Marque [TAB] Modèle [TAB] Plaque)
+                        📊 Collez vos données (Format : Marque [TAB] Modèle [TAB] Plaque [TAB] Agence)
                     </label>
                     <textarea 
                         id="vehicleData" 
                         placeholder="Exemple :
-RENAULT	CLIO IV	GL-341-SH
-RENAULT	CLIO	GL-366-SH
-TOYOTA	AYGO	DW-555-XM
-PEUGEOT	208	FN-445-DK"></textarea>
+RENAULT	CLIO IV	GL-341-SH	Toulouse
+RENAULT	CLIO	GL-366-SH	Bordeaux
+TOYOTA	AYGO	DW-555-XM	Paris
+PEUGEOT	208	FN-445-DK	Lyon"></textarea>
                     
                     <div class="example">
-                        💡 <strong>Astuce :</strong> Copiez directement depuis Excel. Les tabulations, virgules ou points-virgules sont détectés automatiquement.
+                        💡 <strong>Astuce :</strong> Copiez directement depuis Excel. Les tabulations, virgules ou points-virgules sont détectés automatiquement.<br>
+                        ⚠️ <strong>Important :</strong> L'ordre des colonnes doit être Marque, Modèle, Plaque, puis Agence.
                     </div>
                 </div>
                 
@@ -306,7 +307,7 @@ PEUGEOT	208	FN-445-DK"></textarea>
                     <ul>
                         <li><strong>Importer :</strong> Fenêtre → Utilitaires → Fusion de données → Sélectionner la source de données</li>
                         <li><strong>QR Code :</strong> Objet → Générer le code QR → Sélectionnez le champ <code>QRCODE&lt;</code></li>
-                        <li><strong>Texte :</strong> Insérez les champs <code>&lt;&lt;MARQUE&gt;&gt;</code>, <code>&lt;&lt;MODELE&gt;&gt;</code>, <code>&lt;&lt;PLAQUE D'IMMATRICULATION&gt;&gt;</code></li>
+                        <li><strong>Texte :</strong> Insérez les champs <code>&lt;&lt;MARQUE&gt;&gt;</code>, <code>&lt;&lt;MODELE&gt;&gt;</code>, <code>&lt;&lt;PLAQUE D'IMMATRICULATION&gt;&gt;</code>, <code>&lt;&lt;AGENCE&gt;&gt;</code></li>
                         <li><strong>Créer :</strong> Fusion de données → Créer un document fusionné → Tous les enregistrements</li>
                     </ul>
                 </div>
@@ -358,11 +359,13 @@ PEUGEOT	208	FN-445-DK"></textarea>
                 
                 parts = parts.map(p => p.trim()).filter(p => p);
                 
+                // Marque, Modèle, Plaque obligatoires ; Agence optionnelle
                 if (parts.length >= 3) {
                     vehicules.push({
                         marque: parts[0],
                         modele: parts[1],
-                        plaque: parts[2]
+                        plaque: parts[2],
+                        agence: parts.length >= 4 ? parts[3] : ''
                     });
                 }
             }
@@ -385,12 +388,15 @@ PEUGEOT	208	FN-445-DK"></textarea>
                 return;
             }
             
+            // Vérifier si l'agence est manquante pour certains véhicules
+            const sansAgence = vehiculesData.filter(v => !v.agence).length;
+            
             // Générer le CSV avec le bon format pour InDesign
-            let csv = 'MARQUE;MODELE;PLAQUE D\'IMMATRICULATION;QRCODE<\n';
+            let csv = 'MARQUE;MODELE;PLAQUE D\'IMMATRICULATION;AGENCE;QRCODE<\n';
             
             for (let v of vehiculesData) {
-                const url = `${baseURL}?marque=${encodeURIComponent(v.marque)}&modele=${encodeURIComponent(v.modele)}&plaque=${encodeURIComponent(v.plaque)}`;
-                csv += `${v.marque};${v.modele};${v.plaque};${url}\n`;
+                const url = `${baseURL}?marque=${encodeURIComponent(v.marque)}&modele=${encodeURIComponent(v.modele)}&plaque=${encodeURIComponent(v.plaque)}&agence=${encodeURIComponent(v.agence)}`;
+                csv += `${v.marque};${v.modele};${v.plaque};${v.agence};${url}\n`;
             }
             
             csvData = csv;
@@ -404,11 +410,21 @@ PEUGEOT	208	FN-445-DK"></textarea>
             
             document.getElementById('csvPreview').textContent = apercu;
             
-            document.getElementById('stats').innerHTML = `
+            let statsHTML = `
                 <div class="alert alert-success">
                     ✅ <strong>${vehiculesData.length} véhicules</strong> prêts pour InDesign !
                 </div>
             `;
+            
+            if (sansAgence > 0) {
+                statsHTML += `
+                    <div class="alert alert-error">
+                        ⚠️ <strong>${sansAgence} véhicule(s)</strong> n'ont pas d'agence renseignée (colonne vide dans le CSV).
+                    </div>
+                `;
+            }
+            
+            document.getElementById('stats').innerHTML = statsHTML;
             
             document.getElementById('preview').style.display = 'block';
             afficherMessage(`✨ CSV généré avec succès ! ${vehiculesData.length} véhicules prêts pour la fusion de données InDesign.`, 'success');
