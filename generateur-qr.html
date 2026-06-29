@@ -275,8 +275,9 @@ TOYOTA	AYGO	DW-555-XM	Paris
 PEUGEOT	208	FN-445-DK	Lyon"></textarea>
                     
                     <div class="example">
-                        💡 <strong>Astuce :</strong> Copiez directement depuis Excel. Les tabulations, virgules ou points-virgules sont détectés automatiquement.<br>
-                        ⚠️ <strong>Important :</strong> L'ordre des colonnes doit être Marque, Modèle, Plaque, puis Agence.
+                        💡 <strong>Astuce :</strong> Copiez directement depuis Excel. Les tabulations, virgules ou points-virgules sont détectés automatiquement dans le champ ci-dessus.<br>
+                        ⚠️ <strong>Important :</strong> L'ordre des colonnes doit être Marque, Modèle, Plaque, puis Agence.<br>
+                        📐 Le CSV généré utilise la virgule comme séparateur (format standard requis par InDesign).
                     </div>
                 </div>
                 
@@ -391,12 +392,28 @@ PEUGEOT	208	FN-445-DK	Lyon"></textarea>
             // Vérifier si l'agence est manquante pour certains véhicules
             const sansAgence = vehiculesData.filter(v => !v.agence).length;
             
-            // Générer le CSV avec le bon format pour InDesign
-            let csv = 'MARQUE;MODELE;PLAQUE D\'IMMATRICULATION;AGENCE;QRCODE<\n';
+            // Fonction pour échapper proprement un champ CSV (standard RFC 4180)
+            function escapeCSV(valeur) {
+                valeur = String(valeur);
+                if (valeur.includes(',') || valeur.includes('"') || valeur.includes('\n')) {
+                    return '"' + valeur.replace(/"/g, '""') + '"';
+                }
+                return valeur;
+            }
+            
+            // Générer le CSV avec virgule (format standard attendu par InDesign)
+            // Saut de ligne CRLF (\r\n) requis par certaines versions d'InDesign
+            let csv = 'MARQUE,MODELE,PLAQUE D\'IMMATRICULATION,AGENCE,QRCODE<\r\n';
             
             for (let v of vehiculesData) {
                 const url = `${baseURL}?marque=${encodeURIComponent(v.marque)}&modele=${encodeURIComponent(v.modele)}&plaque=${encodeURIComponent(v.plaque)}&agence=${encodeURIComponent(v.agence)}`;
-                csv += `${v.marque};${v.modele};${v.plaque};${v.agence};${url}\n`;
+                csv += [
+                    escapeCSV(v.marque),
+                    escapeCSV(v.modele),
+                    escapeCSV(v.plaque),
+                    escapeCSV(v.agence),
+                    escapeCSV(url)
+                ].join(',') + '\r\n';
             }
             
             csvData = csv;
