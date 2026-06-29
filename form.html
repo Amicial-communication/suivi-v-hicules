@@ -63,17 +63,12 @@
         
         const formBaseURL = "https://forms.office.com/Pages/ResponsePage.aspx?id=RDQOv2mwt063A5QHEWv3DDoE5SCcEXpFgCbpAazgK-pURjQ5VDQ0V09RTkNJN0xFWDNSU0tONUM1UiQlQCN0PWcu";
         
-        // IDs pour la branche PRISE
-        const priseMarqueID = "rba6e8b4972eb45a0ab92127c776d3a1d";
-        const priseModeleID = "r861327d4ab1245668b07e0e879e84e23";
-        const prisePlaqueID = "r2356d94277aa4c34b2e1ed3c2299b7e8";
-        const priseGeoID = "rab7748b8af4c4539a1abe6ac3c9a0693";
-        
-        // IDs pour la branche RETOUR
-        const retourMarqueID = "r3465abbd71d84a3eae5a11966da2ffd7";
-        const retourModeleID = "r671f88129b324a2fb0ef8b1a5281a7dd";
-        const retourPlaqueID = "rf0661cf74a434faba1e935fd6e62d328";
-        const retourGeoID = "rc3bb29b532854c6d81277d1e8252e5e2";
+        // IDs des champs du formulaire (un seul jeu de champs, pas de duplication)
+        const marqueID = "rba6e8b4972eb45a0ab92127c776d3a1d";
+        const modeleID = "r861327d4ab1245668b07e0e879e84e23";
+        const plaqueID = "r2356d94277aa4c34b2e1ed3c2299b7e8";
+        const agenceID = "re25605cec724468bb136277d49994cbf";
+        const geoID = "rab7748b8af4c4539a1abe6ac3c9a0693";
         
         function redirectToForm(geoData = "") {
             let finalURL = formBaseURL;
@@ -81,25 +76,17 @@
             const marque = urlParams.get('marque') || '';
             const modele = urlParams.get('modele') || '';
             const plaque = urlParams.get('plaque') || '';
+            const agence = urlParams.get('agence') || '';
             
-            // Pré-remplir TOUS les champs (prise ET retour)
-            if (marque) {
-                finalURL += `&${priseMarqueID}=${encodeURIComponent(marque)}`;
-                finalURL += `&${retourMarqueID}=${encodeURIComponent(marque)}`;
-            }
-            if (modele) {
-                finalURL += `&${priseModeleID}=${encodeURIComponent(modele)}`;
-                finalURL += `&${retourModeleID}=${encodeURIComponent(modele)}`;
-            }
-            if (plaque) {
-                finalURL += `&${prisePlaqueID}=${encodeURIComponent(plaque)}`;
-                finalURL += `&${retourPlaqueID}=${encodeURIComponent(plaque)}`;
-            }
+            // Pré-remplir les champs depuis le QR code
+            if (marque) finalURL += `&${marqueID}=${encodeURIComponent(marque)}`;
+            if (modele) finalURL += `&${modeleID}=${encodeURIComponent(modele)}`;
+            if (plaque) finalURL += `&${plaqueID}=${encodeURIComponent(plaque)}`;
+            if (agence) finalURL += `&${agenceID}=${encodeURIComponent(agence)}`;
             
-            // Géolocalisation pour les deux branches
+            // Géolocalisation
             if (geoData) {
-                finalURL += `&${priseGeoID}=${encodeURIComponent(geoData)}`;
-                finalURL += `&${retourGeoID}=${encodeURIComponent(geoData)}`;
+                finalURL += `&${geoID}=${encodeURIComponent(geoData)}`;
             }
             
             window.location.href = finalURL;
