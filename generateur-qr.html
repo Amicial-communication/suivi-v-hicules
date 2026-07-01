@@ -307,10 +307,10 @@ PEUGEOT	208	FN-445-DK	Lyon"></textarea>
                     <h3>📐 Utilisation dans InDesign</h3>
                     <ul>
                         <li><strong>Importer :</strong> Fenêtre → Utilitaires → Fusion de données → Sélectionner la source de données → ce CSV</li>
-                        <li><strong>Vérifier :</strong> dans le panneau Fusion de données, le champ <code>#QRCODE</code> doit afficher une <strong>icône QR code</strong> (pas une icône "T" de texte). Si ce n'est pas le cas, le fichier n'est pas bien reconnu.</li>
-                        <li><strong>QR Code :</strong> dessinez un cadre vide à l'emplacement voulu, puis <strong>glissez le champ <code>#QRCODE</code></strong> depuis le panneau directement sur ce cadre (ne pas utiliser Objet → Générer le code QR pour ce champ)</li>
+                        <li><strong>Vérifier :</strong> dans le panneau Fusion de données, le champ <code>#QRCODE</code> doit afficher une <strong>icône QR code</strong> (pas une icône "T" de texte).</li>
+                        <li><strong>QR Code :</strong> dessinez un cadre vide à l'emplacement voulu, puis <strong>glissez le champ <code>#QRCODE</code></strong> depuis le panneau directement sur ce cadre</li>
                         <li><strong>Texte :</strong> insérez les champs <code>&lt;&lt;MARQUE&gt;&gt;</code>, <code>&lt;&lt;MODELE&gt;&gt;</code>, <code>&lt;&lt;PLAQUE D'IMMATRICULATION&gt;&gt;</code>, <code>&lt;&lt;AGENCE&gt;&gt;</code> en les glissant aussi depuis le panneau</li>
-                        <li><strong>Créer :</strong> Fusion de données → Créer un document fusionné → Tous les enregistrements</li>
+                        <li><strong>Export en 95 fichiers nommés par plaque :</strong> utilisez le champ <code>&lt;&lt;NOM_FICHIER&gt;&gt;</code> (à placer sur une page document, pas un gabarit, et hors de la zone visible ou en non-imprimable) avec le script gratuit <em>Data Merge Export</em> de Mars Premedia, qui exporte un PDF par enregistrement nommé automatiquement</li>
                     </ul>
                 </div>
             </div>
@@ -402,11 +402,17 @@ PEUGEOT	208	FN-445-DK	Lyon"></textarea>
                 return valeur;
             }
             
+            // Nettoie la plaque pour en faire un nom de fichier valide (pas de / \ : * ? " < > |)
+            function nettoyerNomFichier(valeur) {
+                return String(valeur).replace(/[\/\\:*?"<>|]/g, '-').trim();
+            }
+            
             // Générer le CSV avec virgule (format standard attendu par InDesign)
             // Saut de ligne CRLF (\r\n) requis par certaines versions d'InDesign
             // En-tête #QRCODE (avec dièse, sans espace après le #) : format requis par InDesign
             // pour qu'il reconnaisse la colonne comme génératrice de QR code (icône QR au lieu de "T")
-            let csv = 'MARQUE,MODELE,PLAQUE D\'IMMATRICULATION,AGENCE,#QRCODE\r\n';
+            // Colonne NOM_FICHIER : utilisée par le script Data Merge Export pour nommer chaque PDF (sans @ ni #)
+            let csv = 'MARQUE,MODELE,PLAQUE D\'IMMATRICULATION,AGENCE,#QRCODE,NOM_FICHIER\r\n';
             
             for (let v of vehiculesData) {
                 const url = `${baseURL}?marque=${encodeURIComponent(v.marque)}&modele=${encodeURIComponent(v.modele)}&plaque=${encodeURIComponent(v.plaque)}&agence=${encodeURIComponent(v.agence)}`;
@@ -416,7 +422,8 @@ PEUGEOT	208	FN-445-DK	Lyon"></textarea>
                     escapeCSV(v.modele),
                     escapeCSV(v.plaque),
                     escapeCSV(v.agence),
-                    escapeCSV('URL:' + url)
+                    escapeCSV('URL:' + url),
+                    escapeCSV(nettoyerNomFichier(v.plaque))
                 ].join(',') + '\r\n';
             }
             
